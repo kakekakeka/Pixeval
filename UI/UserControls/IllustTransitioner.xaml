@@ -1,6 +1,6 @@
 ﻿<!--
 Pixeval - A Strong, Fast and Flexible Pixiv Client
-Copyright (C) 2019 Dylech30th
+Copyright (C) 2019-2020 Dylech30th
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -27,8 +27,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              mc:Ignorable="d">
     <Grid>
-        <Grid Width="600"
-              Height="600" />
         <materialDesign:Transitioner x:Name="IllustTransition"
                                      Width="1000"
                                      materialDesign:TransitionAssist.DisableTransitions="True"

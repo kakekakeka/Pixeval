@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -14,21 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
-using System.Threading.Tasks;
+using System;
 
-namespace Pixeval.Objects
+namespace Pixeval.Objects.Exceptions.Logger
 {
-    // ReSharper disable once InconsistentNaming
-    public static class IO
+    public class ApplicationLog
     {
-        public static async Task<byte[]> ToBytes(this Stream stream)
-        {
-            if (stream is MemoryStream ms) return ms.ToArray();
+        public string Data { get; set; }
 
-            var mStream = new MemoryStream();
-            await stream.CopyToAsync(mStream);
-            return mStream.ToArray();
-        }
+        public DateTime Creation { get; set; }
     }
 }

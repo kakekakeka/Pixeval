@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -28,8 +28,9 @@ using Pixeval.Core;
 using Pixeval.Data.ViewModel;
 using Pixeval.Data.Web.Delegation;
 using Pixeval.Data.Web.Request;
+using Pixeval.Objects.Primitive;
 using PropertyChanged;
-using static Pixeval.Objects.UiHelper;
+using static Pixeval.Objects.Primitive.UiHelper;
 
 namespace Pixeval.UI.UserControls
 {
@@ -76,7 +77,7 @@ namespace Pixeval.UI.UserControls
             LoadingOrigin = true;
             var progress = new Progress<double>(p => Dispatcher.Invoke(() => LoadingIndicator = p));
             await using var mem = await PixivIO.Download(Illust.GetDownloadUrl(), progress, cancellationTokenSource.Token);
-            ImgSource = PixivIO.FromStream(mem);
+            ImgSource = InternalIO.CreateBitmapImageFromStream(mem);
             LoadingOrigin = false;
             ((BlurEffect) ContentImage.Effect).Radius = 0;
         }
@@ -112,7 +113,7 @@ namespace Pixeval.UI.UserControls
             var metadata = await HttpClientFactory.AppApiService().GetUgoiraMetadata(Illust.Id);
             var ugoiraZip = metadata.UgoiraMetadataInfo.ZipUrls.Medium;
             var delay = metadata.UgoiraMetadataInfo.Frames.Select(f => f.Delay / 10).ToArray();
-            var streams = PixivIO.ReadGifZipEntries(await PixivIO.GetBytes(ugoiraZip)).ToArray();
+            var streams = InternalIO.ReadGifZipEntries(await PixivIO.GetBytes(ugoiraZip)).ToArray();
 
             ProcessingGif = false;
             PlayingGif = true;
@@ -124,7 +125,7 @@ namespace Pixeval.UI.UserControls
                     for (var i = 0; i < streams.Length && !cancellationToken.IsCancellationRequested; i++)
                     {
                         streams[i].Position = 0;
-                        ImgSource = PixivIO.FromStream(streams[i]);
+                        ImgSource = InternalIO.CreateBitmapImageFromStream(streams[i]);
                         await Task.Delay((int) delay[i], cancellationToken.Token);
                     }
             });

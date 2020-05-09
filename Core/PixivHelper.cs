@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -21,8 +21,8 @@ using System.Threading.Tasks;
 using Pixeval.Data.ViewModel;
 using Pixeval.Data.Web.Delegation;
 using Pixeval.Data.Web.Response;
-using Pixeval.Objects;
 using Pixeval.Objects.Exceptions.Logger;
+using Pixeval.Objects.Primitive;
 using Refit;
 
 namespace Pixeval.Core
@@ -38,7 +38,7 @@ namespace Pixeval.Core
             }
             catch (ApiException e)
             {
-                ExceptionLogger.WriteException(e);
+                ExceptionDumper.WriteException(e);
                 return null;
             }
             catch (Exception)

@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -123,5 +123,7 @@ namespace Pixeval.Objects
         public const string RankDateCannotBeNull = "榜单日期不能为空";
 
         public const string RankNeedR18On = "根据您的偏好设置, Pixeval不能为您展示这些作品";
+
+        public const string CannotFindSpecifiedCertificate = "找不到指定的证书";
     }
 }

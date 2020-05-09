@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Pixeval.Core;
 using Pixeval.Data.Web.Delegation;
-using Pixeval.Objects;
+using Pixeval.Objects.Primitive;
 using PropertyChanged;
 
 namespace Pixeval.Data.ViewModel
@@ -154,7 +154,7 @@ namespace Pixeval.Data.ViewModel
                 var delay = metadata.UgoiraMetadataInfo.Frames.Select(f => f.Delay / 10).ToArray();
                 if (cancellationTokenSource.IsCancellationRequested) return;
                 await using var memory = await PixivIO.Download(ugoiraUrl, new Progress<double>(d => Progress = d), cancellationTokenSource.Token);
-                await using var gifStream = (MemoryStream) PixivIO.MergeGifStream(PixivIO.ReadGifZipEntries(memory), delay);
+                await using var gifStream = (MemoryStream) InternalIO.MergeGifStream(InternalIO.ReadGifZipEntries(memory), delay);
                 if (cancellationTokenSource.IsCancellationRequested) return;
                 await using var fileStream = new FileStream(DownloadPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                 gifStream.WriteTo(fileStream);

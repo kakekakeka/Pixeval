@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,7 @@ using Pixeval.Core;
 using Pixeval.Data.ViewModel;
 using Pixeval.Objects;
 using Pixeval.Objects.Caching;
+using Pixeval.Objects.Primitive;
 using Pixeval.Persisting;
 
 namespace Pixeval.UI.UserControls
@@ -81,7 +82,7 @@ namespace Pixeval.UI.UserControls
         {
             AppContext.DefaultCacheProvider.Clear();
             AppContext.DefaultCacheProvider = new FileCache<BitmapImage, Illustration>(AppContext.CacheFolder,
-                image => image.ToStream(), PixivIO.FromStream);
+                image => image.ToStream(), InternalIO.CreateBitmapImageFromStream);
         }
 
         private void ChangeCachingPolicyToggleButton_OnUnchecked(object sender, RoutedEventArgs e)

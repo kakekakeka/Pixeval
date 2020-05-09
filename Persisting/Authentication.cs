@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -15,13 +15,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
 using CefSharp;
 using CefSharp.OffScreen;
 using EmbedIO;
@@ -31,6 +28,7 @@ using Pixeval.Data.Web.Protocol;
 using Pixeval.Data.Web.Request;
 using Pixeval.Objects;
 using Pixeval.Objects.Exceptions;
+using Pixeval.Objects.Primitive;
 using Pixeval.Persisting.WebApi;
 using Refit;
 
@@ -98,14 +96,7 @@ namespace Pixeval.Persisting
         public static async Task WebApiAuthenticate(string name, string pwd)
         {
             // create x.509 certificate object for intercepting https traffic, USE AT YOUR OWN RISK
-            X509Certificate2 certificate;
-            if (Application.GetResourceStream(new Uri("pack://application:,,,/Resources/PixevalFakeCert.pfx")) is { } streamResource)
-                await using (streamResource.Stream)
-                {
-                    certificate = new X509Certificate2(await streamResource.Stream.ToBytes(), "pixeval");
-                }
-            else throw new FileNotFoundException("Cannot find certificate specified"); // throw exception if we cannot locate it
-
+            var certificate = await CertificateManager.GetFakeServerCertificate();
             // create https reverse proxy server for intercepting and forwarding https traffic,
             // default port is 1234
             using var proxyServer = HttpsProxyServer.Create("127.0.0.1", 1234, (await new PixivApiDnsResolver().Lookup("pixiv.net"))[0].ToString(), certificate);

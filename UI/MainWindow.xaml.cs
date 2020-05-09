@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -42,12 +43,13 @@ using Pixeval.Data.Web;
 using Pixeval.Data.Web.Delegation;
 using Pixeval.Data.Web.Request;
 using Pixeval.Objects;
+using Pixeval.Objects.Native;
+using Pixeval.Objects.Primitive;
 using Pixeval.Persisting;
 using Pixeval.UI.UserControls;
 using Refit;
 using Xceed.Wpf.AvalonDock.Controls;
-using static Pixeval.Objects.UiHelper;
-
+using static Pixeval.Objects.Primitive.UiHelper;
 #if RELEASE
 using System.Net.Http;
 using Pixeval.Objects.Exceptions;
@@ -99,7 +101,7 @@ namespace Pixeval.UI
                 case HttpRequestException _:
                     break;
                 default:
-                    ExceptionLogger.WriteException(e.Exception);
+                    ExceptionDumper.WriteException(e.Exception);
                     break;
             }
 
@@ -203,13 +205,6 @@ namespace Pixeval.UI
 
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (await AppContext.UpdateAvailable())
-                if (MessageBox.Show("有更新可用, 是否现在更新?", "更新可用", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
-                {
-                    Process.Start(@"updater\Pixeval.AutoUpdater.exe");
-                    Environment.Exit(0);
-                }
-
             await AddUserNameAndAvatar();
         }
 
@@ -788,6 +783,16 @@ namespace Pixeval.UI
         #endregion
 
         #region 作品浏览器
+
+        private async void SetAsWallPaperButton_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var trans = (IllustTransitioner) IllustBrowserContainer.Children[1];
+            var transitions = (IEnumerable<TransitionerSlide>) trans.IllustTransition.ItemsSource;
+            var selectedIndex = transitions.ToList()[trans.IllustTransition.SelectedIndex];
+            var location = Path.Combine(AppContext.PermanentlyFolder, "wallpaper.bmp");
+            var wallPaper = new WallAdjudicator(location, (BitmapSource) ((IllustPresenter) selectedIndex.Content).ImgSource);
+            await wallPaper.Execute();
+        }
 
         private async void IllustBrowserDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs e)
         {

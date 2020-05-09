@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Windows;
 using Pixeval.Objects;
+using Pixeval.Objects.Primitive;
 
 namespace Pixeval.Persisting.WebApi
 {
@@ -54,7 +55,7 @@ namespace Pixeval.Persisting.WebApi
         public static async Task<X509Certificate2> GetFakeCaRootCertificate()
         {
             if (_fakeCa != null) return _fakeCa;
-            if (Application.GetResourceStream(new Uri("pack://application:,,,/Resources/PixevalFakeCA.cer")) is { } streamResource)
+            if (Application.GetResourceStream(new Uri("pack://application:,,,/Resources/pixeval_ca.cer")) is { } streamResource)
             {
                 await using (streamResource.Stream)
                 {
@@ -64,7 +65,7 @@ namespace Pixeval.Persisting.WebApi
                 return _fakeCa;
             }
 
-            throw new FileNotFoundException("Cannot find certificate specified");
+            throw new FileNotFoundException(StringResources.CannotFindSpecifiedCertificate);
         }
 
         /// <summary>
@@ -73,8 +74,8 @@ namespace Pixeval.Persisting.WebApi
         /// <returns></returns>
         public static async Task<X509Certificate2> GetFakeServerCertificate()
         {
-            if (_fakeCa != null) return _serverCert;
-            if (Application.GetResourceStream(new Uri("pack://application:,,,/Resources/PixevalFakeCert.pfx")) is { } streamResource)
+            if (_serverCert != null) return _serverCert;
+            if (Application.GetResourceStream(new Uri("pack://application:,,,/Resources/pixeval_server_cert.pfx")) is { } streamResource)
             {
                 await using (streamResource.Stream)
                 {
@@ -84,7 +85,7 @@ namespace Pixeval.Persisting.WebApi
                 return _serverCert;
             }
 
-            throw new FileNotFoundException("Cannot find certificate specified");
+            throw new FileNotFoundException(StringResources.CannotFindSpecifiedCertificate);
         }
 
         /// <summary>

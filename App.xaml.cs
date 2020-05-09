@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -25,14 +25,12 @@ using System.Windows.Media.Imaging;
 using CefSharp;
 using CefSharp.OffScreen;
 using Microsoft.Win32;
-using Pixeval.Core;
 using Pixeval.Data.ViewModel;
 using Pixeval.Objects;
 using Pixeval.Objects.Caching;
+using Pixeval.Objects.Primitive;
 using Pixeval.Persisting;
 using Pixeval.Persisting.WebApi;
-using Refit;
-
 #if RELEASE
 using Pixeval.Objects.Exceptions.Logger;
 
@@ -53,7 +51,7 @@ namespace Pixeval
         private static void DispatcherOnUnhandledException(Exception e)
         {
 #if RELEASE
-            ExceptionLogger.WriteException(e);
+            ExceptionDumper.WriteException(e);
 #elif DEBUG
             if (e is ApiException apiException) MessageBox.Show(apiException.Content);
 #endif
@@ -61,14 +59,25 @@ namespace Pixeval
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            InitializeFolders();
             CheckCppRedistributable();
             CheckMultipleProcess();
+            await CheckUpdate();
             await InstallFakeCaCertificate();
             await WritePac();
             CefSharpInitialize();
             await RestoreSettings();
 
             base.OnStartup(e);
+        }
+
+        private static void InitializeFolders()
+        {
+            Directory.CreateDirectory(AppContext.ProjectFolder);
+            Directory.CreateDirectory(AppContext.SettingsFolder);
+            Directory.CreateDirectory(AppContext.ExceptionReportFolder);
+            Directory.CreateDirectory(AppContext.ResourceFolder);
+            Directory.CreateDirectory(AppContext.PermanentlyFolder);
         }
 
         private static void CheckMultipleProcess()
@@ -88,6 +97,16 @@ namespace Pixeval
                 Clipboard.SetText("https: //support.microsoft.com/zh-cn/help/2977003/the-latest-supported-visual-c-downloads");
                 Environment.Exit(-1);
             }
+        }
+
+        private static async Task CheckUpdate()
+        {
+            if (await AppContext.UpdateAvailable())
+                if (MessageBox.Show("有更新可用, 是否现在更新?", "更新可用", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                {
+                    Process.Start(@"updater\Pixeval.AutoUpdater.exe");
+                    Environment.Exit(0);
+                }
         }
 
         /// <summary>
@@ -135,7 +154,7 @@ namespace Pixeval
             await Settings.Restore();
             AppContext.DefaultCacheProvider = Settings.Global.CachingPolicy == CachingPolicy.Memory
                 ? (IWeakCacheProvider<BitmapImage, Illustration>) MemoryCache<BitmapImage, Illustration>.Shared
-                : new FileCache<BitmapImage, Illustration>(AppContext.CacheFolder, image => image.ToStream(), PixivIO.FromStream);
+                : new FileCache<BitmapImage, Illustration>(AppContext.CacheFolder, image => image.ToStream(), InternalIO.CreateBitmapImageFromStream);
             AppContext.DefaultCacheProvider.Clear();
         }
 
@@ -145,8 +164,6 @@ namespace Pixeval
         /// </summary>
         private static async Task WritePac()
         {
-            var dir = Path.Combine(Path.GetDirectoryName(typeof(App).Assembly.Location), "Resource");
-            Directory.CreateDirectory(dir);
             var scriptBuilder = new StringBuilder();
             scriptBuilder.AppendLine("function FindProxyForURL(url, host) {");
             // only *.pixiv.net will request bypass proxy
@@ -155,7 +172,7 @@ namespace Pixeval
             scriptBuilder.AppendLine("    }");
             scriptBuilder.AppendLine("    return \"DIRECT\";");
             scriptBuilder.AppendLine("}");
-            await File.WriteAllTextAsync(Path.Combine(dir, "pixeval_pac.pac"), scriptBuilder.ToString());
+            await File.WriteAllTextAsync(Path.Combine(AppContext.ResourceFolder, "pixeval_pac.pac"), scriptBuilder.ToString());
         }
 
         protected override async void OnExit(ExitEventArgs e)

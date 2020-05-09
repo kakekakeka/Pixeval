@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -30,7 +30,7 @@ namespace Pixeval
     {
         public const string AppIdentifier = "Pixeval";
 
-        public const string CurrentVersion = "2.0.0";
+        public const string CurrentVersion = "2.1.0";
 
         public const string ConfigurationFileName = "pixeval_conf.json";
 
@@ -46,18 +46,15 @@ namespace Pixeval
 
         public static readonly string CacheFolder = Path.Combine(ProjectFolder, "cache");
 
+        public static readonly string ResourceFolder = Path.Combine(Path.GetDirectoryName(typeof(App).Assembly.Location), "Resource");
+
+        public static readonly string PermanentlyFolder = Path.Combine(Path.GetDirectoryName(typeof(App).Assembly.Location), "Permanent");
+
         public static IWeakCacheProvider<BitmapImage, Illustration> DefaultCacheProvider;
 
         public static readonly ObservableCollection<TrendingTag> TrendingTags = new ObservableCollection<TrendingTag>();
 
         public static readonly IQualifier<Illustration, IllustrationQualification> DefaultQualifier = new IllustrationQualifier();
-
-        static AppContext()
-        {
-            Directory.CreateDirectory(ProjectFolder);
-            Directory.CreateDirectory(SettingsFolder);
-            Directory.CreateDirectory(ExceptionReportFolder);
-        }
 
         public static async Task<bool> UpdateAvailable()
         {

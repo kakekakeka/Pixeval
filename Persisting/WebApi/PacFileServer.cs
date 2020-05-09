@@ -1,5 +1,5 @@
 ﻿// Pixeval - A Strong, Fast and Flexible Pixiv Client
-// Copyright (C) 2019 Dylech30th
+// Copyright (C) 2019-2020 Dylech30th
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
 using EmbedIO;
 
 namespace Pixeval.Persisting.WebApi
@@ -26,11 +25,10 @@ namespace Pixeval.Persisting.WebApi
     {
         public static WebServer Create(string hostname, int port)
         {
-            var asm = Path.GetDirectoryName(typeof(PacFileServer).Assembly.Location);
             var server = new WebServer(o => o
                 .WithUrlPrefix($"http://{hostname}:{port}")
                 .WithMode(HttpListenerMode.EmbedIO)
-            ).WithStaticFolder("/", Path.Combine(asm, "Resource"), false);
+            ).WithStaticFolder("/", AppContext.ResourceFolder, false);
             return server;
         }
     }
